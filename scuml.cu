@@ -33,14 +33,14 @@ int main(int arg, char ** args) {
     
         int i = 4;
         
-        if(i++ < ARGS.size()) {stringstream SS; SS << ARGS[i];  SS >> pops;}
-        if(i++ < ARGS.size()) {stringstream SS; SS << ARGS[i];  SS >> gens;}
+        if(i < ARGS.size()) {stringstream SS; SS << ARGS[i++];  SS >> pops;}
+        if(i < ARGS.size()) {stringstream SS; SS << ARGS[i++];  SS >> gens;}
 
-        if(i++ < ARGS.size()) {stringstream SS; SS << ARGS[i];  SS >> Bplambda;}
-        if(i++ < ARGS.size()) {stringstream SS; SS << ARGS[i];  SS >> BpBetM;}
-        if(i++ < ARGS.size()) {stringstream SS; SS << ARGS[i];  SS >> BpNums;}
+        if(i < ARGS.size()) {stringstream SS; SS << ARGS[i++];  SS >> Bplambda;}
+        if(i < ARGS.size()) {stringstream SS; SS << ARGS[i++];  SS >> BpBetM;}
+        if(i < ARGS.size()) {stringstream SS; SS << ARGS[i++];  SS >> BpNums;}
 
-        if(i++ < ARGS.size()) {stringstream SS; SS << ARGS[i];  SS >> MUT;}
+        if(i < ARGS.size()) {stringstream SS; SS << ARGS[i++];  SS >> MUT;}
         
         TRAIN(ARGS[3], ARGS[2], pops, gens, Bplambda, BpBetM, BpNums, MUT);
 
