@@ -46,6 +46,7 @@ std::vector<int> GET_ARCHITECTURE(std::string architecture);
 __global__ void rand_scal(float * vec, int sz);
 __global__ void fill_ones(float * vec, int sz);
 __global__ void active_func(float * vec, int sz);
+__global__ void dirv_active_func(float * dir, float * vec, int sz);
 void rand_gen(float * vec, int sz);
 __global__ void Rand_select(float * child_A, float * child_B, float * prnt_A, float * prnt_B, float * vecs, float MUT, int sz, int RW);
 
@@ -97,6 +98,7 @@ public:
     friend float cal_err(Matrix & y, Matrix & Y, cublasHandle_t handle);
     friend bool Matrix_Product(Matrix & Ra, Matrix & Rb, Matrix & A, Matrix & B, Matrix & vec, float muate_rate);
     friend void TEST(std::string CSVdata, std::string net);
+    friend bool Derivatives(Matrix & Error, Matrix & A);
     
 };
 

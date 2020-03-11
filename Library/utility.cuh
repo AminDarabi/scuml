@@ -59,6 +59,20 @@ __global__ void active_func(float * vec, int sz) {
     return ;
 
 }
+__global__ void dirv_active_func(float * dir, float * vec, int sz) {
+
+    int ind = blockIdx.x * blockDim.x + threadIdx.x;
+    
+    if (ind < sz) {
+
+        float tn = tanhf(vec[ind]);
+        tn *= tn;
+        dir[ind] *= (1 - tn);
+    }
+    
+    return ;
+
+}
 //it destroys y
 float cal_err(Matrix & y, Matrix & Y, cublasHandle_t handle) {
 

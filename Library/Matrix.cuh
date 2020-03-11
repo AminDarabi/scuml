@@ -65,7 +65,6 @@ bool Matrix::MultiplyNN(Matrix & A, Matrix & B, cublasHandle_t handle) {
     if ((A.column - A.first_column) != B.row)   return false;
     if (row != A.row)                           return false;
 
-
     cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, row, CLM, B.row, &alpha, A.Device + (A.first_column * A.row), A.row, B.Device + (B.first_column * B.row), B.row, &beta, Device + (first_column * row), row);
     
     Is_Device_synced = true;

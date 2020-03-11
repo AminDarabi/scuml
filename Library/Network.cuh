@@ -33,6 +33,21 @@ bool Network::feed_forward(std::vector<Matrix> &A, cublasHandle_t handle) {
     return true;
 
 }
+bool Derivatives(Matrix &Error, Matrix &A) {
+
+    if (!Error.Is_Device_synced)    Error.Sync();
+    if (!A.Is_Device_synced)    Error.Sync();
+    
+    if (A.row != Error.row) return false;
+    if (A.column - A.first_column != Error.column - Error.first_column) return false;
+    
+    int sz = A.row * (A.column - A.first_column);
+    dirv_active_func<<<(sz + TPB - 1) / TPB, TPB>>>(Error.Device + (Error.row * Error.first_column), A.Device + (A.first_column * A.row), sz);
+    Error.Is_Host_synced = false;
+
+    return true;
+
+}
 bool Network::Backpropagation(Matrix &Y, std::vector<Matrix> & A, std::vector<Matrix> & Errors, float lambda, float BetM, cublasHandle_t handle) {
     
     if (feed_forward(A, handle) == false) return false;
@@ -43,7 +58,9 @@ bool Network::Backpropagation(Matrix &Y, std::vector<Matrix> & A, std::vector<Ma
     Y.set_first(0);
     Errors[L].set_first(0);
     if (Errors[L].MinusNN(A[L], Y, handle) == false) return false;
-    
+    //std::cerr<< "\n EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE \n" << Errors[L] << "\n\n DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD \n\n";
+    if (Derivatives(Errors[L], Y) == false) return false;
+    //std::cerr<< Errors[L] << "\n FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF \n";
     for (int i = L - 1; i > 0; i --) {
 
         if (i < (L - 1)) Errors[i + 1].set_first(1);
@@ -52,7 +69,7 @@ bool Network::Backpropagation(Matrix &Y, std::vector<Matrix> & A, std::vector<Ma
         A[i].set_first(0);
         
         if (Errors[i].MultiplyNT(Errors[i + 1], weights[i], handle) == false) return false;
-        if (Errors[i].DMultiplyNN(A[i]) == false) return false;
+        if (Derivatives(Errors[i], A[i]) == false) return false;
     
     }
 
@@ -65,8 +82,7 @@ bool Network::Backpropagation(Matrix &Y, std::vector<Matrix> & A, std::vector<Ma
         
         if (Dw[i].MultiplyTN(A[i], Errors[i + 1], handle) == false) return false;
         if (weights[i].PlusNN(1, weights[i], (-1 * BetM) / A[i].row, Dw[i], handle) == false) return false;
-
-        //std::cerr << i << ":\n" << Dw[i] << "\n\n";
+        
         Dw[i].set_first(1);
         weights[i].set_first(1);
         if (weights[i].PlusNN(1 - lambda, weights[i], 0, Dw[i], handle) == false) return false;

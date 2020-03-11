@@ -9,13 +9,14 @@
 void TRAIN(std::string CSVdata, std::string arch, int pops, int gens, float Bplambda, float BpBetM, int BpNums, float MUT) {
 
     std::vector<int> architecture = GET_ARCHITECTURE(arch);
-
+    
     int features = architecture[0];
     int classes  = architecture.back();
 
     std::vector<std::string> IND;
     
     Matrix X(1, 1), Y(1, 1);
+    
     IND = READ_CSV_DATA(CSVdata, features, classes, X, Y);
 
     std::vector<Matrix> A;  A.push_back(X);
@@ -41,7 +42,7 @@ void TRAIN(std::string CSVdata, std::string arch, int pops, int gens, float Bpla
 
     cublasHandle_t handle;
     cublasCreate(&handle);
-    
+
 
     int CRG = gens / 64; // to show percentage
 
@@ -57,14 +58,14 @@ void TRAIN(std::string CSVdata, std::string arch, int pops, int gens, float Bpla
     
     }
 
-
+    
     Network BEST(architecture);
     BEST.feed_forward(A, handle);
     float BEST_err = cal_err(A.back(), Y, handle);
 
     
     while (gens --) {
-
+        
         //evlauate
         std::vector<float> errors(pops);
         float max_err, min_err, Mu_err;
